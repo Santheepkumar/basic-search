@@ -18,19 +18,28 @@ function performSearch(query, accessToken) {
         headers: {
             "user-access-token": accessToken,
         },
-    })
+    }).then(res => res.json())
 }
 
-function formatData(data, accessToken) {
+
+// Document is not clear for this api
+function getStockResults(data, accessToken) {
+    const convertToProperData = (data) => {
+        return data.map(d => ({
+            name: d[0],
+            ltp: d[1],
+            lcp: d[2]
+        }))
+    }
     return fetch(`${BACKEND}/api/data`, {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(convertToProperData(data)),
         headers: {
             "Content-Type": "application/json",
             "user-access-token": accessToken,
         },
-    })
+    }).then(res => res.json())
 }
 
 
-export { getAccessToken, performSearch, formatData }
+export { getAccessToken, performSearch, getStockResults }

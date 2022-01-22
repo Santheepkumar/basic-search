@@ -2,31 +2,48 @@ import { useEffect, useState } from "react";
 import * as SearchService from "./Search.service";
 
 function getAccessToken(setAccessToken) {
-  SearchService.getAccessToken().then((token) => {
-    setAccessToken(token.token);
-  });
-  // .catch(() => {
-  //   alert("Error Fetching Access Token");
-  // });
+  SearchService.getAccessToken()
+    .then((token) => {
+      setAccessToken(token.token);
+    })
+    .catch(() => {
+      alert("Error Fetching Access Token");
+    });
 }
 function performSearch(query, acccessToken, setSearchResults) {
-  SearchService.performSearch(query, acccessToken).then((results) => {
-    setSearchResults(results);
+  SearchService.performSearch(query, acccessToken)
+    .then((results) => {
+      setSearchResults(results);
+    })
+    .catch(() => {
+      alert("Error Fetching Search Results");
+    });
+}
+
+// Document is not clear for this api
+function getStockResults(data, acccessToken, setStockResults) {
+  SearchService.getStockResults(data, acccessToken).then((res) => {
+    setStockResults(res);
   });
   // .catch(() => {
-  //   alert("Error Fetching Search Results");
+  //   alert("Error Fetching Stock Results");
   // });
 }
 
 function Search() {
   const [acccessToken, setAccessToken] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+  const [stockResults, setStockResults] = useState([]);
 
   useEffect(() => {
     getAccessToken(setAccessToken);
   }, []);
 
-  console.log("acccessToken", acccessToken);
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      getStockResults(searchResults, acccessToken, setStockResults);
+    }
+  }, [searchResults]);
 
   return (
     <div>
@@ -38,8 +55,11 @@ function Search() {
         }}
       />
       <h2>Results</h2>
-      {/* Response need to be handled */}
-      <div>{JSON.stringify(searchResults, null, 2)}</div>
+      {searchResults.map((res, i) => (
+        <div key={i}>
+          {res[0]} - {res[1]}, {res[2]}
+        </div>
+      ))}
     </div>
   );
 }
